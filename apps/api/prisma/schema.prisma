@@ -1,0 +1,114 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Vendor {
+  id        String    @id @default(uuid())
+  name      String
+  address   String?
+  city      String?
+  state     String?
+  zipCode   String?   @map("zip_code")
+  country   String?
+  taxId     String?   @map("tax_id")
+  email     String?
+  phone     String?
+  website   String?
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  
+  invoices  Invoice[]
+
+  @@map("vendors")
+}
+
+model Customer {
+  id        String    @id @default(uuid())
+  name      String
+  address   String?
+  city      String?
+  state     String?
+  zipCode   String?   @map("zip_code")
+  country   String?
+  email     String?
+  phone     String?
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  
+  invoices  Invoice[]
+
+  @@map("customers")
+}
+
+model Invoice {
+  id             String      @id @default(uuid())
+  invoiceNumber  String      @unique @map("invoice_number")
+  vendorId       String      @map("vendor_id")
+  customerId     String?     @map("customer_id")
+  issueDate      DateTime    @map("issue_date")
+  dueDate        DateTime?   @map("due_date")
+  paymentDate    DateTime?   @map("payment_date")
+  totalAmount    Float       @map("total_amount")
+  taxAmount      Float       @default(0) @map("tax_amount")
+  discountAmount Float       @default(0) @map("discount_amount")
+  netAmount      Float       @map("net_amount")
+  status         String      @default("pending") // pending, paid, overdue, cancelled
+  category       String?
+  description    String?
+  notes          String?
+  createdAt      DateTime    @default(now()) @map("created_at")
+  updatedAt      DateTime    @updatedAt @map("updated_at")
+  
+  vendor         Vendor      @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  customer       Customer?   @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  lineItems      LineItem[]
+  payments       Payment[]
+
+  @@index([vendorId])
+  @@index([customerId])
+  @@index([issueDate])
+  @@index([status])
+  @@map("invoices")
+}
+
+model LineItem {
+  id          String   @id @default(uuid())
+  invoiceId   String   @map("invoice_id")
+  description String
+  quantity    Float
+  unitPrice   Float    @map("unit_price")
+  amount      Float
+  taxRate     Float?   @map("tax_rate")
+  category    String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  
+  invoice     Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  @@index([invoiceId])
+  @@map("line_items")
+}
+
+model Payment {
+  id            String   @id @default(uuid())
+  invoiceId     String   @map("invoice_id")
+  paymentDate   DateTime @map("payment_date")
+  amount        Float
+  method        String   // credit_card, bank_transfer, check, cash, etc.
+  reference     String?
+  notes         String?
+  createdAt     DateTime @default(now()) @map("created_at")
+  
+  invoice       Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  @@index([invoiceId])
+  @@index([paymentDate])
+  @@map("payments")
+}
