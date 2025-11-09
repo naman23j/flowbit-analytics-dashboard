@@ -25,7 +25,7 @@ categoryRouter.get('/', async (req: Request, res: Response) => {
     // Group by category and calculate totals
     const categorySpend = new Map<string, { totalSpend: number; count: number }>();
 
-    invoices.forEach((invoice) => {
+    invoices.forEach((invoice: { category: string | null; totalAmount: number }) => {
       const category = invoice.category || 'Uncategorized';
       const existing = categorySpend.get(category) || { totalSpend: 0, count: 0 };
       

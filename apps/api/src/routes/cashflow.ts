@@ -40,7 +40,7 @@ cashflowRouter.get('/', async (req: Request, res: Response) => {
     // Group by month
     const monthlyOutflow = new Map<string, { expected: number; overdue: number }>();
 
-    invoices.forEach((invoice) => {
+    invoices.forEach((invoice: { dueDate: Date | null; totalAmount: number; status: string }) => {
       if (!invoice.dueDate) return;
       
       const date = new Date(invoice.dueDate);

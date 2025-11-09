@@ -39,7 +39,7 @@ trendsRouter.get('/', async (req: Request, res: Response) => {
     // Group by month and calculate totals
     const monthlyData = new Map<string, { count: number; totalSpend: number }>();
 
-    invoices.forEach((invoice) => {
+    invoices.forEach((invoice: { issueDate: Date; totalAmount: number }) => {
       const date = new Date(invoice.issueDate);
       const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
       

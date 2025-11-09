@@ -29,13 +29,13 @@ vendorsRouter.get('/top10', async (req: Request, res: Response) => {
 
     // Calculate total spend per vendor and sort
     const vendorsWithSpend = topVendors
-      .map((vendor) => ({
+      .map((vendor: any) => ({
         id: vendor.id,
         name: vendor.name,
         invoiceCount: vendor._count.invoices,
-        totalSpend: vendor.invoices.reduce((sum, inv) => sum + inv.totalAmount, 0),
+        totalSpend: vendor.invoices.reduce((sum: number, inv: any) => sum + inv.totalAmount, 0),
       }))
-      .sort((a, b) => b.totalSpend - a.totalSpend)
+      .sort((a: any, b: any) => b.totalSpend - a.totalSpend)
       .slice(0, 10);
 
     console.log(`✅ Found ${vendorsWithSpend.length} top vendors`);
